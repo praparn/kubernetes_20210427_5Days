@@ -1,0 +1,209 @@
+For this workshop. We will demonstrate "registry on single docker-machine", "registry on multiple docker"
+
+---------------------------------------------------------------------------------------------------
+Part1: Registry on single docker-machine
+---------------------------------------------------------------------------------------------------
+
+1. Getting image of registry by command:
+docker image pull registry:2.7.1
+
+2. Running registry by command:
+	cd ~/docker-workshop-022021/Workshop-2-4-Registry
+
+	docker container run -d -p 5000:5000 \
+	--restart=always --name registrylab \
+	-e REGISTRY_STORAGE_DELETE_ENABLED=true \
+	--mount type=bind,source=$(pwd),target=/var/lib/registry \
+	registry:2.7.1
+
+3. Tag image for upload to new registry with command:
+	docker image tag labdocker/alpine:latest localhost:5000/alpine:latest
+
+4. Push docker images to registry with command: "docker image push localhost:5000/alpine:latest"
+
+*REMARK: Keep digest :
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ sha256:d0710affa17fad5f466a70159cc458227bd25d4afb39514ef662ead3e6c99515 size: 528
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+5. Operate with registry with curl:
+	curl -X GET http://127.0.0.1:5000/v2/_catalog ==> List all images in catalog
+	curl -X GET http://127.0.0.1:5000/v2/alpine/tags/list ==> List all tag on alpine image
+
+	*Retrieve Digest When You Forget*
+	curl -v --silent -H "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+	-X GET http://localhost:5000/v2/alpine/manifests/latest 2>&1 | grep Docker-Content-Digest | awk '{print ($3)}'
+
+6. Test Delete and redownload docker image with command:
+	docker image rm localhost:5000/alpine:latest
+	docker image ls
+	docker image pull localhost:5000/alpine:latest
+	docker image ls
+
+7. Delete docker images from registry
+	curl -X DELETE http://127.0.0.1:5000/v2/alpine/manifests/sha256:d0710affa17fad5f466a70159cc458227bd25d4afb39514ef662ead3e6c99515
+    curl -X GET http://127.0.0.1:5000/v2/alpine/tags/list
+
+8. Clean Up Lab by command:
+	docker container stop registrylab
+	docker container rm -v registrylab
+
+===================================
+Registry on multihost docker-machine 
+===================================
+
+9.  (Teacher Machine) Setup New machine for Registry and pull require image by command:
+	docker image pull registry:2.7.1
+	docker image pull registry:2.7.0
+	docker image pull labdocker/alpine:latest
+	cd ~/
+    git clone https://github.com/praparn/docker-workshop-022021.git
+
+10. (Teacher Machine) Check ip address registry machine on control sheet
+
+11. (all) Check folder "Workshop-2-4-Registry" by command
+	ls ~/docker-workshop-022021/Workshop-2-4-Registry
+
+12. (all) Access to folder by command: 
+	cd ~/docker-workshop-022021/Workshop-2-4-Registry
+	pwd
+
+13. (all) Trust certificate via command:
+	sudo mkdir /usr/local/share/ca-certificates/labdocker.com:5000
+	sudo cp labdocker.com.crt  /usr/local/share/ca-certificates/labdocker.com:5000
+	sudo update-ca-certificates
+	sudo service docker restart
+
+14. (Teacher Machine) Create htpasswd for store username/password for authentication with registry by command (labdocker):
+	docker container run -i --rm --entrypoint htpasswd registry:2.7.0 -Bbn docker tcuser >> ./htpasswd
+	docker container run -i --rm --entrypoint htpasswd registry:2.7.0 -Bbn labdockerthailand dockerlab >> ./htpasswd
+	
+15. (Teacher Machine) Verify htpasswd by command:
+	more ./htpasswd
+
+16. (Teacher Machine) Run container registry:
+	docker container run -d -p 5000:5000 \
+	--restart=always --name registrylab \
+	--mount type=bind,source=$(pwd),target=/var/lib/registry \
+	--mount type=bind,source=$(pwd),target=/certs \
+	--mount type=bind,source=$(pwd),target=/auth \
+	-e "REGISTRY_AUTH=htpasswd" \
+  	-e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+	-e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+	-e REGISTRY_STORAGE_DELETE_ENABLED=true \
+	-e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/labdocker.com.crt \
+	-e REGISTRY_HTTP_TLS_KEY=/certs/labdocker.com.key \
+	registry:2.7.1
+
+17. (all) Add "labdocker.com" on hosts (/etc/hosts) by command:
+	sudo -- sh -c -e "echo '<Private IP of Registry>   labdocker.com' >> /etc/hosts"
+		Example: Registry ip: 10.0.1.182	
+			sudo -- sh -c -e "echo '10.0.1.182   labdocker.com' >> /etc/hosts"	
+
+	ping labdocker.com
+
+18. (Teacher Machine) Login with regitry by command:
+	docker login labdocker.com:5000
+
+19. (Teacher Machine) Tag docker image and Test Push by command:
+	docker image tag labdocker/alpine:latest \
+	labdocker.com:5000/alpine:1.0
+
+	docker image push labdocker.com:5000/alpine:1.0
+
+	docker logout labdocker.com:5000
+	*REMARK: digest: sha256:d0710affa17fad5f466a70159cc458227bd25d4afb39514ef662ead3e6c99515 size: 506
+
+20. (all) Test pull image from registry machine by command:
+	docker login labdocker.com:5000
+	docker image pull labdocker.com:5000/alpine:1.0
+	docker logout labdocker.com:5000
+	docker image ls
+
+21. (all) Operate with docker registry via https
+	curl -u docker:tcuser --cacert $(pwd)/labdocker.com.crt -X GET https://labdocker.com:5000/v2/_catalog ==> List all images in catalog
+	curl -u docker:tcuser --cacert $(pwd)/labdocker.com.crt -X GET https://labdocker.com:5000/v2/alpine/tags/list ==> List all tag on alpine image
+	curl -u docker:tcuser --cacert $(pwd)/labdocker.com.crt \
+	-X DELETE https://labdocker.com:5000/v2/alpine/manifests/sha256:d0710affa17fad5f466a70159cc458227bd25d4afb39514ef662ead3e6c99515
+	curl -u docker:tcuser --cacert $(pwd)/labdocker.com.crt -X GET https://labdocker.com:5000/v2/_catalog
+
+22. (Teacher Machine) Cleanup by command:
+	docker container stop registrylab
+	docker container rm -v registrylab
+
+
+=================================== 
+Registry with Harbor
+===================================
+
+23. (Teacher Machine) Setup Harbor Registry by command:
+	cd ~
+	wget https://github.com/goharbor/harbor/releases/download/v2.1.3/harbor-online-installer-v2.1.3.tgz
+	tar xvf harbor-online-installer-v2.1.3.tgz && cd ./harbor
+
+24. (Teacher Machine) Configure initial start by command:
+	cp harbor.yml.tmpl harbor.yml
+	vi harbor.yml
+		#http:										==> disable http
+		#port:80									==> disable port:80
+		#hostname: reg.mydomain.com					==> hostname: labdocker.com
+		#certificate: /your/certificate/path		==> certificate: /home/ubuntu/docker-workshop-022021/Workshop-2-4-Registry/labdocker.com.crt
+		#private_key: /your/private/key/path		==> private key: /home/ubuntu/docker-workshop-022021/Workshop-2-4-Registry/labdocker.com.key
+		#harbor_admin_password: Harbor12345			==> harbor_admin_password: P@ssw0rd
+
+25. (Teacher Machine) Start harbor with command:
+	sudo ./install.sh
+
+26. (Teacher Machine) Check readiness by command:
+	watch sudo docker-compose ps
+
+27. (Teacher Machine) Open web portal for harbor:
+	https://<public ip of registry>
+	username: admin
+	password: P@ssw0rd
+
+28. (Teacher Machine) Create user account and project:
+	- username:
+		- username: harboradmin
+		- email: harboradmin@admin.com
+		- password: P@ssw0rd
+	- project:
+		- project name: harbor
+		- access level: (uncheck) public
+		- Storage quota: -1 GB
+		- Proxy Cache: off
+	- project(harbor) --> Member
+	    - Name: harboradmin
+		- Role: Maintainer
+
+29. (Teacher Machine) Image tag for upload harbor registry by command:
+	docker image tag labdocker/alpine:latest \
+	labdocker.com/harbor/alpine:1.0
+
+30. (Teacher Machine) Login and push image to harbor registry:
+	docker login labdocker.com
+		- username: harboradmin
+		- password: P@ssw0rd
+
+31. (Teacher Machine) Push image to harbor registry and logout:
+	docker image push labdocker.com/harbor/alpine:1.0
+	docker logout labdocker.com
+
+32. (All) Login web portal and check image:
+	https://<public ip of registry>
+	-username: harboradmin
+	-password: P@ssw0rd
+
+33. (All) Pull image from harbor registry:
+	docker login labdocker.com
+	docker image pull labdocker.com/harbor/alpine:1.0
+	docker logout labdocker.com
+	docker image ls |grep labdocker.com/harbor/alpine
+
+34. (All) Delete image from portal:
+
+35. (Teacher Machine) Remove harbor by compose command:
+	cd ~/harbor
+	sudo docker-compose stop
+	sudo docker-compose down

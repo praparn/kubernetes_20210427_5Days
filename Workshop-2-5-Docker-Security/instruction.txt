@@ -1,0 +1,265 @@
+For this workshop. We will demonstration enhance security on docker
+
+Part1: Docker Bench for Security 
+-----------------------------------------------------------------------------------------------------------------
+1. Pull script from git by command: "cd ~/ && git clone https://github.com/docker/docker-bench-security.git"
+
+2. Build docker image by command: "cd docker-bench-security && docker build --no-cache -t docker-bench-security ."
+
+3. Run docker container for security scan by command:
+	docker run -it --net host --pid host --cap-add audit_control \
+    -e DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST \
+    -v /var/lib:/var/lib:ro \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+    -v /usr/lib/systemd:/usr/lib/systemd:ro \
+    -v /etc:/etc:ro --label docker_bench_security \
+    docker-bench-security
+
+4. Enhance audit by command:
+	sudo su -
+	apt-get install -y auditd
+	echo "-w /usr/bin/docker -p wa" >> /etc/audit/rules.d/audit.rules
+	echo "-w /var/lib/docker -p wa" >> /etc/audit/rules.d/audit.rules
+	echo "-w /usr/bin/docker -k docker" >> /etc/audit/rules.d/audit.rules
+	echo "-w /lib/systemd/system/docker.service -p wa" >> /etc/audit/rules.d/audit.rules
+	echo "-w /lib/systemd/system/docker.socket -p wa" >> /etc/audit/rules.d/audit.rules
+	echo "-w /etc/default/docker -p wa" >> /etc/audit/rules.d/audit.rules
+	echo "-w /etc/docker/daemon.json -p wa" >> /etc/audit/rules.d/audit.rules
+	echo "-w /usr/bin/docker-containerd -p wa" >> /etc/audit/rules.d/audit.rules
+	echo "-w /usr/bin/docker-runc -p wa" >> /etc/audit/rules.d/audit.rules
+	systemctl restart auditd
+	systemctl enable auditd
+	auditctl -l
+	exit
+
+5. Run docker container for security scan by command:
+	docker run -it --net host --pid host --cap-add audit_control \
+    -e DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST \
+    -v /var/lib:/var/lib:ro \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+    -v /usr/lib/systemd:/usr/lib/systemd:ro \
+    -v /etc:/etc:ro --label docker_bench_security \
+    docker-bench-security
+
+6. CleanUp Lab by command:
+	cd ~/
+	rm -rf ~/docker-bench-security
+-----------------------------------------------------------------------------------------------------------------
+Part2: Docker vulnerability scan via Anchore
+-----------------------------------------------------------------------------------------------------------------
+1. Create volume for persistency storage by command: 
+mkdir ~/anchore-volume
+cd ~/anchore-volume
+
+2. Download docker-compose by command:
+curl https://engine.anchore.io/docs/quickstart/docker-compose.yaml > docker-compose.yaml
+
+3. Start deploy anchore by command:
+docker-compose pull
+docker-compose up -d
+
+4. Install anchore cli for interact with scanning system by command:
+sudo apt-get update
+sudo apt-get -y install python-pip
+pip install anchorecli
+
+5. Export environment variable for start operate:
+export ANCHORE_CLI_URL=http://localhost:8228/v1
+export ANCHORE_CLI_USER=admin
+export ANCHORE_CLI_PASS=foobar
+export PATH="$HOME/.local/bin/:$PATH"
+
+6. Check status of anchore by command: (Wait 5 - 10 min for download database)
+watch docker-compose ps
+-----------------------------------------------------
+Example Output:
+-----------------------------------------------------
+             Name                           Command                  State               Ports
+-------------------------------------------------------------------------------------------------------
+anchore-volume_analyzer_1        /docker-entrypoint.sh anch ...   Up (healthy)   8228/tcp
+anchore-volume_api_1             /docker-entrypoint.sh anch ...   Up (healthy)   0.0.0.0:8228->8228/tcp
+anchore-volume_catalog_1         /docker-entrypoint.sh anch ...   Up (healthy)   8228/tcp
+anchore-volume_db_1              docker-entrypoint.sh postgres    Up             5432/tcp
+anchore-volume_policy-engine_1   /docker-entrypoint.sh anch ...   Up (healthy)   8228/tcp
+anchore-volume_queue_1           /docker-entrypoint.sh anch ...   Up (healthy)   8228/tcp
+-----------------------------------------------------
+
+7. Test list image on anchore inventory by command:
+anchore-cli image list
+
+8. Add image for anchore's inventory by command:
+anchore-cli image add kong:2.3.0-alpine
+anchore-cli image add bitnami/postgresql:latest
+anchore-cli image add labdocker/alpine:latest
+anchore-cli image add labdocker/alpineweb:latest
+
+9. Check status of image analysis by command: (Wait 5 min for analyze)
+watch anchore-cli image list
+
+10. Get overview of each image analyze result by command:
+anchore-cli image get kong:2.3.0-alpine
+anchore-cli image get bitnami/postgresql:latest
+anchore-cli image get labdocker/alpine:latest
+anchore-cli image get labdocker/alpineweb:latest
+
+11. Check status of anchore system sync database for vulnerability by command:
+anchore-cli system feeds list
+
+12. Check image content scan by command:
+anchore-cli image content kong:2.3.0-alpine os
+anchore-cli image content bitnami/postgresql:latest files
+anchore-cli image content labdocker/alpine:latest os
+anchore-cli image content labdocker/alpineweb:latest npm
+
+13. Check vulnerability scan for image by command:
+anchore-cli image vuln kong:2.3.0-alpine all
+anchore-cli image vuln bitnami/postgresql:latest all
+anchore-cli image vuln labdocker/alpine:latest all
+anchore-cli image vuln labdocker/alpineweb:latest all
+
+14. Check scan policy list by command:
+anchore-cli policy hub list
+
+15. Download policy for "anchore_security_only" by command:
+anchore-cli policy hub get anchore_security_only
+
+16. Install policy by command:
+anchore-cli policy hub install anchore_security_only
+
+17. Check and activate new policy by command:
+anchore-cli policy list
+anchore-cli policy activate anchore_security_only
+
+18. Check vulnerability scan for image by command:
+anchore-cli image vuln kong:2.3.0-alpine all
+anchore-cli image vuln bitnami/postgresql:latest all
+anchore-cli image vuln labdocker/alpine:latest all
+anchore-cli image vuln labdocker/alpineweb:latest all
+
+19. Check json of policyby command:
+anchore-cli --json policy hub get anchore_security_only > /tmp/anchore_security_only.json
+more /tmp/anchore_security_only.json
+
+20. ClearUp lab by command:
+cd ~/anchore-volume
+docker-compose down
+rm -rf ~/anchore-volume
+
+
+-----------------------------------------------------------------------------------------------------------------
+Part3: Apparmor in Container
+-----------------------------------------------------------------------------------------------------------------
+1. Run container for test default profile of Apparmor by command: "docker container run -dt --name sectestdefault labdocker/alpine:latest sh"
+
+2. Access in to container and test some activity:
+	docker container exec -it sectestdefault sh
+	ping 1.1.1.1
+	apk update
+	apk add curl
+	curl https://www.google.com
+
+3. Test write file on /proc (prohibit path):
+	touch /tmp/testcreatefile1
+	touch /home/testcreatefile2
+	touch /etc/testcreatefile3
+	touch /proc/testcreatefile4
+	cp /tmp/testcreatefile1 /proc/testprohibitfile
+	ls -hl /proc | grep test
+
+4. Stop test container by command: "docker container stop sectestdefault && docker container rm sectestdefault"
+
+5. Copy profile and Load apparmor restrict profile by command:
+	sudo apparmor_parser -r -W ~/docker-workshop-022021/Workshop-2-3-Docker-Security/restrict-apparmor
+
+6. Check current profile of apparmor by command: sudo aa-status
+
+7. Run container for test restrict profile of Apparmor by command:
+	docker container run -dt --name sectestrestrict --security-opt "apparmor=restrict-apparmor" labdocker/alpine:latest sh
+
+8. Access in to container and test some activity:
+	docker container exec -it sectestrestrict sh
+	ping 1.1.1.1
+	apk update
+	apk add curl
+	curl https://www.google.com
+
+9. Test write file on /proc (prohibit path):
+	touch /tmp/testcreatefile1
+	touch /home/testcreatefile2
+	touch /etc/testcreatefile3
+	touch /proc/testcreatefile4
+	cp /tmp/testcreatefile1 /proc/testprohibitfile
+	ls -hl /proc | grep test
+
+10. Stop test container by command: "docker container stop sectestrestrict && docker container rm sectestrestrict"
+
+11. Remove apparmor profile by command: sudo apparmor_parser -R ~/docker-workshop-022021/Workshop-2-3-Docker-Security/restrict-apparmor && sudo aa-status
+
+
+
+-----------------------------------------------------------------------------------------------------------------
+Part4: Content Trust (Signed Image)
+-----------------------------------------------------------------------------------------------------------------
+1. Enable content trust feature by command:
+export DOCKER_CONTENT_TRUST=1
+
+2. Create repository "alpine" on hub.docker.com and Tag image with out sign image and push to hub.docker.com by command:
+docker image tag labdocker/alpine:latest <username>/alpine:unsign
+docker login
+docker image push --disable-content-trust=true <username>/alpine:unsign
+docker logout
+
+3. Remove existing image and test pull image from hub.docker.com by command:
+docker image remove <username>/alpine:unsign
+docker image ls
+docker image pull <username>/alpine:unsign
+docker image ls
+
+4. Pull image with disable feature content trust by command:
+docker image pull --disable-content-trust=true <username>/alpine:unsign
+docker image ls
+
+5. Tag image sign image and push to hub.docker.com by command:
+docker image tag labdocker/alpine:latest <username>/alpine:sign
+docker login
+docker image push <username>/alpine:sign
+	*Remark:
+		This step docker will ask for passphase for root key and repository, Please input as you prefer
+docker logout
+#####################################
+Example: Output
+#####################################
+The push refers to a repository [docker.io/praparn/alpine]
+6102f0d2ad33: Layer already exists 
+sign: digest: sha256:65242e8220a341cec40628caaea77eb4acd2fc252329aa853526fde15a4a1d85 size: 528
+Signing and pushing trust metadata
+You are about to create a new root signing key passphrase. This passphrase
+will be used to protect the most sensitive key in your signing system. Please
+choose a long, complex passphrase and be careful to keep the password and the
+key file itself secure and backed up. It is highly recommended that you use a
+password manager to generate the passphrase and keep it safe. There will be no
+way to recover this key. You can find the key in your config directory.
+Enter passphrase for new root key with ID ca6ab4b: <password>
+Repeat passphrase for new root key with ID ca6ab4b: <password>
+Enter passphrase for new repository key with ID 68d88cd (docker.io/praparn/alpine): <password>
+Repeat passphrase for new repository key with ID 68d88cd (docker.io/praparn/alpine): <password>
+Finished initializing "docker.io/praparn/alpine"
+Successfully signed "docker.io/praparn/alpine":sign
+
+*Remark:
+For backup your key:
+tar -czvf private_keys_backup.tar.gz ~/.docker/trust/private
+scp -i "~/.ssh/docker_lab.pem" ubuntu@<public ip>:/home/ubuntu/private_keys_backup.tar.gz ./
+
+For restore your key:
+scp -i "~/.ssh/docker_lab.pem" private_keys_backup.tar.gz ubuntu@<public ip>:/home/ubuntu/
+cd ~ && mkdir ~/temp
+tar -xzvf ./private_keys_backup.tar.gz -C ~/temp
+cp -r ~/temp/home/docker/.docker/trust/private/* ~/.docker/trust/private && rm -rf ~/temp
+
+6. Remove existing image and test pull image from hub.docker.com by command:
+docker image remove <username>/alpine:sign
+docker image ls
+docker image pull <username>/alpine:sign
+docker image ls
+export DOCKER_CONTENT_TRUST=0
