@@ -47,21 +47,24 @@ Part1: Docker Bench for Security
 -----------------------------------------------------------------------------------------------------------------
 Part2: Docker vulnerability scan via Anchore
 -----------------------------------------------------------------------------------------------------------------
-1. Create volume for persistency storage by command: 
+1. Install anchore cli for interact with scanning system by command:
+sudo add-apt-repository universe
+sudo apt install -y python2
+curl https://bootstrap.pypa.io/2.7/get-pip.py --output get-pip.py
+sudo python2 get-pip.py
+sudo apt install -y python3-pip
+pip3 install anchorecli
+
+2. Create volume for persistency storage by command: 
 mkdir ~/anchore-volume
 cd ~/anchore-volume
 
-2. Download docker-compose by command:
+3. Download docker-compose by command:
 curl https://engine.anchore.io/docs/quickstart/docker-compose.yaml > docker-compose.yaml
 
-3. Start deploy anchore by command:
+4. Start deploy anchore by command:
 docker-compose pull
 docker-compose up -d
-
-4. Install anchore cli for interact with scanning system by command:
-sudo apt-get update
-sudo apt-get -y install python-pip
-pip install anchorecli
 
 5. Export environment variable for start operate:
 export ANCHORE_CLI_URL=http://localhost:8228/v1
@@ -109,7 +112,7 @@ anchore-cli system feeds list
 anchore-cli image content kong:2.3.0-alpine os
 anchore-cli image content bitnami/postgresql:latest files
 anchore-cli image content labdocker/alpine:latest os
-anchore-cli image content labdocker/alpineweb:latest npm
+anchore-cli image content labdocker/alpineweb:latest os
 
 13. Check vulnerability scan for image by command:
 anchore-cli image vuln kong:2.3.0-alpine all
@@ -169,7 +172,7 @@ Part3: Apparmor in Container
 4. Stop test container by command: "docker container stop sectestdefault && docker container rm sectestdefault"
 
 5. Copy profile and Load apparmor restrict profile by command:
-	sudo apparmor_parser -r -W ~/docker-workshop-022021/Workshop-2-3-Docker-Security/restrict-apparmor
+	sudo apparmor_parser -r -W ~/kubernetes_20210427_5Days/Workshop-2-5-Docker-Security/restrict-apparmor
 
 6. Check current profile of apparmor by command: sudo aa-status
 
@@ -193,7 +196,7 @@ Part3: Apparmor in Container
 
 10. Stop test container by command: "docker container stop sectestrestrict && docker container rm sectestrestrict"
 
-11. Remove apparmor profile by command: sudo apparmor_parser -R ~/docker-workshop-022021/Workshop-2-3-Docker-Security/restrict-apparmor && sudo aa-status
+11. Remove apparmor profile by command: sudo apparmor_parser -R ~/kubernetes_20210427_5Days/Workshop-2-5-Docker-Security/restrict-apparmor && sudo aa-status
 
 
 

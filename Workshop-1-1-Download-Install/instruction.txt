@@ -38,12 +38,12 @@ ubuntu@ip-10-0-1-111:~$
 
 4. Clone workshop to aws machine by command: 
     cd ~/
-    git clone https://github.com/praparn/docker-workshop-022021.git
+    git clone https://github.com/praparn/kubernetes_20210427_5Days.git
 
    *Remark: In case you need to refresh workshop please kindly operate command below:
    cd ~/
-   rm -rf ./docker-workshop-022021
-   git clone https://github.com/praparn/docker-workshop-022021.git
+   rm -rf ./kubernetes_20210427_5Days
+   git clone https://github.com/praparn/kubernetes_20210427_5Days.git
 
-5. Now all workshop is on "/home/ubuntu/docker-workshop-022021"
+5. Now all workshop is on "/home/ubuntu/kubernetes_20210427_5Days"
    ls -lh ~/

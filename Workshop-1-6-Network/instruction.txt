@@ -43,7 +43,7 @@ Part1: Reverse Proxy by DNS
 
 10. Start Kong api gateway by command:
 	10.1 Prepare space for kong apigateway by command:
-	mkdir ~/kong
+  mkdir ~/kong
   mkdir ~/kong/postgres
   mkdir ~/kong/kong-configuration
 
