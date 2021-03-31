@@ -49,9 +49,6 @@ Part2: Docker vulnerability scan via Anchore
 -----------------------------------------------------------------------------------------------------------------
 1. Install anchore cli for interact with scanning system by command:
 sudo add-apt-repository universe
-sudo apt install -y python2
-curl https://bootstrap.pypa.io/2.7/get-pip.py --output get-pip.py
-sudo python2 get-pip.py
 sudo apt install -y python3-pip
 pip3 install anchorecli
 
