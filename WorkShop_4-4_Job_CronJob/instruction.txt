@@ -1,4 +1,4 @@
-Instruction for Workshop 2.1_Job_CronJob:
+Instruction for Workshop 4.4_Job_CronJob:
 Note: This instruction will demonstrate about how to manage use job and cronjob:
 ====================================================
 Part0: Generate LINE token:
@@ -11,8 +11,8 @@ Part0: Generate LINE token:
 ====================================================
 Create Job for Monitor System via LINE:
 ====================================================
-1. Get command prompt for access folder workshop 2.1 by command :cd /xxxx/WorkShop_2.1_Job_CronJob
-2. Check File on WorkShop by command: "cd ~/kubernetes_202104/WorkShop_2.1_Job_CronJob/"
+1. Get command prompt for access folder workshop 4.4 by command :cd /xxxx/WorkShop_4-4_Job_CronJob
+2. Check File on WorkShop by command: "cd ~/kubernetes_20210427_5Days/WorkShop_4-4_Job_CronJob/"
 3. Open job.yml file and Edit Environment (vi job.yml)
 	        env:
         - name: TITLE

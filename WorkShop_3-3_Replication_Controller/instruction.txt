@@ -1,17 +1,17 @@
-Instruction for Workshop 1.3 Replication Controller:
+Instruction for Workshop 3.3 Replication Controller:
 Note: This instruction will demonstrate about how to use RC for maintain avaliable of Pods:
 ====================================================
 
-1. Get command prompt for access folder workshop 1.3 by command :cd /xxxx/WorkShop_1.3_Replication_Controller/
+1. Get command prompt for access folder workshop 1.3 by command :cd /xxxx/WorkShop_3-3_Replication_Controller/
 2. Check File in Workshop Folder
 
 3. Create RC and check status by command:
-	kubectl create -f https://raw.githubusercontent.com/praparn/kubernetes_202005/master/WorkShop_1.3_Replication_Controller/webtest_rc.yml
+	kubectl create -f https://raw.githubusercontent.com/praparn/kubernetes_20210427_5Days/master/WorkShop_3-3_Replication_Controller/webtest_rc.yml
 	kubectl get rc
 	kubectl get pods
 
 4. Create Service and check status by command:
-	kubectl create -f https://raw.githubusercontent.com/praparn/kubernetes_202005/master/WorkShop_1.3_Replication_Controller/webtest_svc.yml
+	kubectl create -f https://raw.githubusercontent.com/praparn/kubernetes_20210427_5Days/master/WorkShop_3-3_Replication_Controller/webtest_svc.yml
 	kubectl get svc
 	---------------------------------------------------
 	Example: Port mapping outside on TCP:32500
@@ -61,7 +61,7 @@ Note: This instruction will demonstrate about how to use RC for maintain avaliab
 	kubectl get pods
 
 10. Test scale RC via file with command:
-	kubectl scale --replicas=5 -f https://raw.githubusercontent.com/praparn/kubernetes_202005/master/WorkShop_1.3_Replication_Controller/webtest_rc.yml
+	kubectl scale --replicas=5 -f https://raw.githubusercontent.com/praparn/kubernetes_20210427_5Days/master/WorkShop_3-3_Replication_Controller/webtest_rc.yml
 	kubectl get rc webtest
 	kubectl get pods
 
@@ -69,5 +69,5 @@ Note: This instruction will demonstrate about how to use RC for maintain avaliab
 	kubectl describe rc webtest
 
 12. Cleanup Lab by command:
-	kubectl delete -f https://raw.githubusercontent.com/praparn/kubernetes_202005/master/WorkShop_1.3_Replication_Controller/webtest_svc.yml
-	kubectl delete -f https://raw.githubusercontent.com/praparn/kubernetes_202005/master/WorkShop_1.3_Replication_Controller/webtest_rc.yml
+	kubectl delete -f https://raw.githubusercontent.com/praparn/kubernetes_20210427_5Days/master/WorkShop_3-3_Replication_Controller/webtest_svc.yml
+	kubectl delete -f https://raw.githubusercontent.com/praparn/kubernetes_20210427_5Days/master/WorkShop_3-3_Replication_Controller/webtest_rc.yml

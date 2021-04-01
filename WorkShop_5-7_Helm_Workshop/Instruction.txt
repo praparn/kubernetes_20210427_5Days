@@ -20,7 +20,8 @@ Part 1: Deploy grafana via helm:
    helm search repo grafana
 
 2. Install grafana helm by command
-   helm upgrade --install loki grafana/loki --set "service.type=NodePort"
+   helm install loki-grafana grafana/grafana --set "service.type=NodePort"
+
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Example Output:
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -52,7 +53,6 @@ export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 3. Check password of admin grafana by command:
 kubectl get secret --namespace default loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
-
 
 4. Check release for helm by command:
    helm ls --all
