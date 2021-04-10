@@ -29,8 +29,8 @@ Part2: MULTIPLENODEJS
 ---------------------------------------------------------------------------------------------------
 
 8. Check folder "Workshop-2-4-Compose" and access to folder by command
-		ls ~/kubernetes_20210427_5Days/Workshop-2-4-Compose
-		cd ~/kubernetes_20210427_5Days/Workshop-2-4-Compose/composemultinodejs
+		ls ~/kubernetes_20210427_5Days/Workshop_2-4-Compose
+		cd ~/kubernetes_20210427_5Days/Workshop_2-4-Compose/composemultinodejs
 
 9. Build image from docker-compose on path by command: "docker-compose build"
 
