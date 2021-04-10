@@ -3,11 +3,11 @@ For this workshop. We will create 1 dockerfile for install NODEJS & NPM on Pure 
 Part 1: Build image from scratch (multi method)
 -----------------------------------------------------------------------------------------------------------
 BUILD Scratch (From file):
-1. Check folder "Workshop-2-3-DockerFile" by command
-	ls ~/kubernetes_20210427_5Days/Workshop-2-3-DockerFile
+1. Check folder "Workshop_2-3-DockerFile" by command
+	ls ~/kubernetes_20210427_5Days/Workshop_2-3-DockerFile
 
 2. Build docker image from command: 
-	docker image build -t labdocker/hello-world:1.0 ~/kubernetes_20210427_5Days/Workshop-2-3-DockerFile/scratch/
+	docker image build -t labdocker/hello-world:1.0 ~/kubernetes_20210427_5Days/Workshop_2-3-DockerFile/scratch/
 
 3. Test run docker image from command: "docker container run --rm labdocker/hello-world:1.0"
 
@@ -16,10 +16,10 @@ Part 2: NODEJS/NGINX
 NODEJS Container:
 
 1. Check folder "Workshop-2-3-DockerFile" by command
-	ls ~/kubernetes_20210427_5Days/Workshop-2-3-DockerFile
+	ls ~/kubernetes_20210427_5Days/Workshop_2-3-DockerFile
 
 2. Build docker image from command: 
-	docker image build -t labdocker/node:1.0 ~/kubernetes_20210427_5Days/Workshop-2-3-DockerFile/nodejs
+	docker image build -t labdocker/node:1.0 ~/kubernetes_20210427_5Days/Workshop_2-3-DockerFile/nodejs
 
 3. Create custom network for support stack by command:
 	docker network create --driver bridge \
@@ -34,7 +34,7 @@ NODEJS Container:
 NGINX Container:
 
 6. Build docker image from command:
-	docker image build -t labdocker/web:1.0 ~/kubernetes_20210427_5Days/Workshop-2-3-DockerFile/nginx
+	docker image build -t labdocker/web:1.0 ~/kubernetes_20210427_5Days/Workshop_2-3-DockerFile/nginx
 
 8. Test run docker image from command: "docker container run -dt --name NGINX -p 8080:8080 --net=restful_switch --network-alias=nginx labdocker/web:1.0"
 
@@ -51,14 +51,14 @@ NGINX Container:
 Part 3: RESTFUL Python
 ------------------------------------------------------------------------------------------------------------
 1. Check folder "Workshop-2-3-DockerFile" by command
-	ls ~/kubernetes_20210427_5Days/Workshop-2-3-DockerFile
+	ls ~/kubernetes_20210427_5Days/Workshop_2-3-DockerFile
 
 2. Pull require image on lab by command:
 	docker image pull labdocker/mariadb:latest
 	docker image pull labdocker/redis:latest
 
 3. Build module "webservice" by command:
-	cd ~/kubernetes_20210427_5Days/Workshop-2-3-DockerFile/python_restfulset
+	cd ~/kubernetes_20210427_5Days/Workshop_2-3-DockerFile/python_restfulset
 	docker image build -t labdocker/webservice:1.0 -f dockerfile_python --rm ./
 
 3. Build module "webcache" by command:
