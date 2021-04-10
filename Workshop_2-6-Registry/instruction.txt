@@ -8,7 +8,7 @@ Part1: Registry on single docker-machine
 docker image pull registry:2.7.1
 
 2. Running registry by command:
-	cd ~/kubernetes_20210427_5Days/Workshop-2-6-Registry
+	cd ~/kubernetes_20210427_5Days/Workshop_2-6-Registry
 
 	docker container run -d -p 5000:5000 \
 	--restart=always --name registrylab \
