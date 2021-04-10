@@ -63,10 +63,10 @@ Registry on multihost docker-machine
 10. (Teacher Machine) Check ip address registry machine on control sheet
 
 11. (all) Check folder "Workshop-2-6-Registry" by command
-	ls ~/kubernetes_20210427_5Days/Workshop-2-6-Registry
+	ls ~/kubernetes_20210427_5Days/Workshop_2-6-Registry
 
 12. (all) Access to folder by command: 
-	cd ~/kubernetes_20210427_5Days/Workshop-2-6-Registry
+	cd ~/kubernetes_20210427_5Days/Workshop_2-6-Registry
 	pwd
 
 13. (all) Trust certificate via command:
@@ -148,8 +148,8 @@ Registry with Harbor
 		#http:										==> disable http
 		#port:80									==> disable port:80
 		#hostname: reg.mydomain.com					==> hostname: labdocker.com
-		#certificate: /your/certificate/path		==> certificate: /home/ubuntu/kubernetes_20210427_5Days/Workshop-2-6-Registry/labdocker.com.crt
-		#private_key: /your/private/key/path		==> private key: /home/ubuntu/kubernetes_20210427_5Days/Workshop-2-6-Registry/labdocker.com.key
+		#certificate: /your/certificate/path		==> certificate: /home/ubuntu/kubernetes_20210427_5Days/Workshop_2-6-Registry/labdocker.com.crt
+		#private_key: /your/private/key/path		==> private key: /home/ubuntu/kubernetes_20210427_5Days/Workshop_2-6-Registry/labdocker.com.key
 		#harbor_admin_password: Harbor12345			==> harbor_admin_password: P@ssw0rd
 
 25. (Teacher Machine) Start harbor with command:
