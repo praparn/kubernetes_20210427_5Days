@@ -4,16 +4,10 @@ Part1: Docker Bench for Security
 -----------------------------------------------------------------------------------------------------------------
 1. Pull script from git by command: "cd ~/ && git clone https://github.com/docker/docker-bench-security.git"
 
-2. Build docker image by command: "cd docker-bench-security && docker build --no-cache -t docker-bench-security ."
+2. Build docker image by command: "cd docker-bench-security"
 
 3. Run docker container for security scan by command:
-	docker run -it --net host --pid host --cap-add audit_control \
-    -e DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST \
-    -v /var/lib:/var/lib:ro \
-    -v /var/run/docker.sock:/var/run/docker.sock:ro \
-    -v /usr/lib/systemd:/usr/lib/systemd:ro \
-    -v /etc:/etc:ro --label docker_bench_security \
-    docker-bench-security
+    sudo sh docker-bench-security.sh
 
 4. Enhance audit by command:
 	sudo su -
@@ -33,13 +27,7 @@ Part1: Docker Bench for Security
 	exit
 
 5. Run docker container for security scan by command:
-	docker run -it --net host --pid host --cap-add audit_control \
-    -e DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST \
-    -v /var/lib:/var/lib:ro \
-    -v /var/run/docker.sock:/var/run/docker.sock:ro \
-    -v /usr/lib/systemd:/usr/lib/systemd:ro \
-    -v /etc:/etc:ro --label docker_bench_security \
-    docker-bench-security
+	sudo sh docker-bench-security.sh
 
 6. CleanUp Lab by command:
 	cd ~/
