@@ -31,6 +31,7 @@ libcrc32c              16384  2 nf_conntrack,ip_vs
 
 6. Initial kubernetes by command:
     sudo su -
+    kubeadm config images pull
     kubeadm init --config /home/ubuntu/kubernetes_20210427_5Days/WorkShop_3-1_Install_Kubernetes/kubeadm-init-basic-containerd.yaml
     exit
 
@@ -44,13 +45,6 @@ libcrc32c              16384  2 nf_conntrack,ip_vs
 8. Install network component by command:
     kubectl apply -f https://raw.githubusercontent.com/praparn/kubernetes_20210427_5Days/master/WorkShop_5-2_Kubernetes_RealWorld/calico_tuning.yaml
     watch kubectl get pods --all-namespaces
-
-
-    *Optional: For weavenet
-    --------------------------------------------------------------------------
-    kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
-    watch kubectl get pods --all-namespaces
-    --------------------------------------------------------------------------
 
 9. Check IPVS mode on kube-proxy by command:
     kubectl get pods -n kube-system ==> Record kube-proxy name
@@ -88,4 +82,3 @@ libcrc32c              16384  2 nf_conntrack,ip_vs
     sudo su -
     kubeadm reset           ==> Answer 'y'
     sudo rm -rf /var/lib/etcd
-    docker system prune -af  ==> Answer 'y'
